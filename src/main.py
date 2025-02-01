@@ -1,3 +1,4 @@
+import json
 import sys
 from typing import Dict, List
 
@@ -5,6 +6,7 @@ import structlog
 
 from src.analyzer import NginxLogAnalyzer
 from src.config import Settings
+from src.reporter import Reporter
 
 logger = structlog.getLogger(__name__)
 
@@ -31,14 +33,14 @@ def main(args):
     valid_args = parse_args(args)
     settings = Settings(config_file_path=valid_args.get("--config", None))
     nginx_analyzer = NginxLogAnalyzer(settings)
+    reporter = Reporter()
 
-    nginx_logs = nginx_analyzer.parse_nginx_log()
-    counter = 10
-    for log in nginx_logs:
-        if counter <= 0:
-            break
-        print(log)
-        counter -= 1
+    last_log = nginx_analyzer.find_last_nginx_log_file(settings.config["LOG_DIR"])
+    logs = nginx_analyzer.get_nginx_logs(last_log)
+    report = reporter.make_report_data(logs)
+
+    with open("test_report.txt", "w", encoding="utf-8") as file:
+        json.dump(report, file, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":
