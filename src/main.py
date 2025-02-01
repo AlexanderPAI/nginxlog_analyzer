@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import structlog
 
+from src.analyzer import NginxLogAnalyzer
 from src.config import Settings
 
 logger = structlog.getLogger(__name__)
@@ -29,9 +30,9 @@ def parse_args(args: List) -> Dict:
 def main(args):
     valid_args = parse_args(args)
     settings = Settings(config_file_path=valid_args.get("--config", None))
-    logger.info(settings.config_file_path)
-    logger.info(settings.config)
-    logger.info(str(1 / 0))
+    nginx_analyzer = NginxLogAnalyzer(settings)
+    last_log = nginx_analyzer.find_last_nginx_log()
+    logger.info(last_log)
 
 
 if __name__ == "__main__":
