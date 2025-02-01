@@ -58,12 +58,17 @@ class Settings:
     }
 
     def __init__(self, config_file_path: Optional[str] = None) -> None:
-        self.config_file_path = os.path.abspath(self._DEFAULT_CONFIG_FILE_PATH)
-        self.config = self._DEFAULT_CONFIG
+        self.config_file_path: str = os.path.abspath(self._DEFAULT_CONFIG_FILE_PATH)
+        self.config: Dict = self._DEFAULT_CONFIG
+        self._logger_config: LoggerConfig | None = None
 
         if config_file_path:
             self.config_file_path = os.path.abspath(config_file_path)
 
+        self._check_settings_from_config_file()
+
+    def _check_settings_from_config_file(self) -> None:
+        """Check and set settings from config_file"""
         if self._config_file_exists():
             self._parse_config_file()
         else:
