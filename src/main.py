@@ -1,4 +1,3 @@
-import json
 import sys
 import time
 from typing import Dict, List
@@ -40,14 +39,16 @@ def main(args):
 
     last_log = nginx_analyzer.find_last_nginx_log_file(settings.config["LOG_DIR"])
     logs = nginx_analyzer.get_nginx_logs(last_log)
-    report = reporter.make_report_data(logs)
+    report_data = reporter.make_report_data(logs)
+    reporter.render_report(
+        report_data=report_data,
+        report_size=settings.config["REPORT_SIZE"],
+        report_dir=settings.config["REPORT_DIR"],
+    )
 
     end_time = time.time()
 
     print(f"Time: {end_time - start_time}")
-
-    with open("test_report.json", "w", encoding="utf-8") as file:
-        json.dump(report, file, ensure_ascii=False, indent=4)
 
 
 if __name__ == "__main__":

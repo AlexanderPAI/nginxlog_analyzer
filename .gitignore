@@ -171,3 +171,4 @@ cython_debug/
 .pypirc
 
 nginx-access-ui.log-*
+/test_report.json

@@ -1,3 +1,5 @@
+import json
+from string import Template
 from typing import Any, Dict, Generator, List
 
 import structlog
@@ -7,6 +9,8 @@ logger = structlog.getLogger(__name__)
 
 class Reporter:
     """Service for making report_data"""
+
+    _REPORT_TEMPLATE_PATH = "./report_template/report.html"
 
     @staticmethod
     def get_median(number_list) -> float:
@@ -75,3 +79,20 @@ class Reporter:
         )
         result = [{"url": url, **data} for url, data in sorted_report.items()]
         return result
+
+    def render_report(
+        self, report_data: List[Dict[str, Any]], report_size: int, report_dir: str
+    ) -> None:
+        with open(self._REPORT_TEMPLATE_PATH, "r") as file:
+            template_data = file.read()
+
+        print(report_dir)
+
+        template = Template(template_data)
+
+        table_json = json.dumps(report_data[: int(report_size)])
+        html_report = template.safe_substitute(table_json=table_json)
+        report_file = f"{report_dir}/test_report.html"
+        print(report_file)
+        with open(report_file, "w") as file:
+            file.write(html_report)
