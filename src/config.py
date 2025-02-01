@@ -1,24 +1,60 @@
-import logging
 import os.path
-from typing import Dict, Optional
+import sys
+import traceback
+from pathlib import Path
+from types import TracebackType
+from typing import Dict, Optional, Type
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+import structlog
+
+logger = structlog.getLogger(__name__)
 
 
-logger = logging.getLogger(__name__)
+class LoggerConfig:
+    """Config for Logger"""
+
+    def __init__(self, log_file_path: Optional[str] = None) -> None:
+        structlog.configure(
+            processors=[
+                structlog.processors.TimeStamper(fmt="iso"),
+                structlog.processors.add_log_level,
+                structlog.processors.JSONRenderer(ensure_ascii=False),
+            ]
+        )
+        if log_file_path:
+            structlog.configure(
+                logger_factory=structlog.WriteLoggerFactory(
+                    file=Path(log_file_path).open("a", encoding="utf-8"),
+                ),
+            )
+        sys.excepthook = self._exception_logging
+
+    def _exception_logging(
+        self,
+        exc_type: Type[BaseException],
+        exc_info: BaseException,
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        """
+        Handler for catching all exception to structlog.
+        For sys.excepthook.
+        """
+        logger.error(
+            exception_class=str(exc_type),
+            event=exc_info,
+            traceback=traceback.extract_tb(exc_tb),
+        )
 
 
 class Settings:
     """Config for Analyzer"""
 
-    _DEFAULT_CONFIG_FILE_PATH: str = "./settings.cfg"
+    _DEFAULT_CONFIG_FILE_PATH: str = "./config/analyzer.cfg"
     _DEFAULT_CONFIG: Dict = {
         "REPORT_SIZE": 1000,
         "REPORT_DIR": "./reports",
         "LOG_DIR": "./log",
+        "ANALYZER_LOG_FILE_PATH": None,
     }
 
     def __init__(self, config_file_path: Optional[str] = None) -> None:
@@ -32,6 +68,10 @@ class Settings:
             self._parse_config_file()
         else:
             logger.error(f"Config file was not found at {self.config_file_path}.")
+
+        self._logger_config = LoggerConfig(
+            self.config.get("ANALYZER_LOG_FILE_PATH", None)
+        )
 
     def _config_file_exists(self) -> bool:
         """Check the existence of the file at self.config_file_path"""

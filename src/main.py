@@ -1,10 +1,11 @@
-import logging
 import sys
 from typing import Dict, List
 
+import structlog
+
 from src.config import Settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 
 def parse_args(args: List) -> Dict:
@@ -30,6 +31,7 @@ def main(args):
     settings = Settings(config_file_path=valid_args.get("--config", None))
     logger.info(settings.config_file_path)
     logger.info(settings.config)
+    logger.info(str(1 / 0))
 
 
 if __name__ == "__main__":
