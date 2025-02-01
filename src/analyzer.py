@@ -1,8 +1,9 @@
+import gzip
 import os
 import re
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional
+from typing import Generator, Optional
 
 import structlog
 
@@ -39,3 +40,12 @@ class NginxLogAnalyzer:
             return last_log
         logger.error(f"The logs were not found at {self._log_dir}")
         return None
+
+    def parse_nginx_log(self) -> Generator[str, None, None]:
+        """Generator for parsing nginx log line by line"""
+        nginx_log_file = self.find_last_nginx_log()
+        if nginx_log_file:
+            open_func = gzip.open if nginx_log_file.suffix == ".gz" else open
+            with open_func(nginx_log_file, "rt", encoding="utf-8") as file:
+                for line in file:
+                    yield line

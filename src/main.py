@@ -31,8 +31,14 @@ def main(args):
     valid_args = parse_args(args)
     settings = Settings(config_file_path=valid_args.get("--config", None))
     nginx_analyzer = NginxLogAnalyzer(settings)
-    last_log = nginx_analyzer.find_last_nginx_log()
-    logger.info(last_log)
+
+    nginx_logs = nginx_analyzer.parse_nginx_log()
+    counter = 10
+    for log in nginx_logs:
+        if counter <= 0:
+            break
+        print(log)
+        counter -= 1
 
 
 if __name__ == "__main__":
