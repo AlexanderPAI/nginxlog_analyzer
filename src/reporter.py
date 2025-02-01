@@ -1,7 +1,12 @@
 from typing import Any, Dict, Generator, List
 
+import structlog
+
+logger = structlog.getLogger(__name__)
+
 
 class Reporter:
+    """Service for making report_data"""
 
     @staticmethod
     def get_median(number_list) -> float:
@@ -14,53 +19,59 @@ class Reporter:
         else:
             return number_list[mid]
 
-    def make_report_data(self, nginx_logs: Generator[List[str], None, None]):
+    @staticmethod
+    def create_report_record(report, log, total_count, total_time):
+        """Create url-record in report"""
+        url = log[7]
+        time = float(log[-1])
+
+        report[url] = {
+            "count": 1,
+            "time_sum": time,
+            "time_max": time,
+            "time_list": [time],
+            "time_med": time,
+            "time_avg": time,
+            "count_perc": (1 / total_count) * 100,
+            "time_perc": (time / total_time) * 100,
+        }
+
+    def refresh_report_record(self, report, log, total_count, total_time):
+        """Refresh url-record in report"""
+        url = log[7]
+        time = float(log[-1])
+
+        report[url]["count"] += 1
+        report[url]["time_sum"] += time
+        report[url]["time_max"] = max(report[url]["time_max"], time)
+        report[url]["time_list"].append(time)
+        report[url]["time_med"] = self.get_median(report[url]["time_list"])
+        report[url]["time_avg"] = report[url]["time_sum"] / report[url]["count"]
+        report[url]["count_perc"] = (report[url]["count"] / total_count) * 100
+        report[url]["time_perc"] = (report[url]["time_sum"] / total_time) * 100
+
+    def make_report_data(
+        self, nginx_logs: Generator[List[str], None, None]
+    ) -> List[Dict[str, str]]:
         """Make report data"""
         report: Dict[str, Any] = {}
 
-        total_request_count: int = 0
-        total_request_time: float = 0.0
+        total_count: int = 0
+        total_time: float = 0.0
 
-        for request in nginx_logs:
-            request_url = request[7]
-            request_time = float(request[-1])
+        for log in nginx_logs:
+            url = log[7]
+            time = float(log[-1])
 
-            total_request_count += 1
-            total_request_time += request_time
+            total_count += 1
+            total_time += time
 
-            if not report.get(request_url):
-                count = 1
-                count_perc = (count / total_request_count) * 100
-                time_sum = time_max = time_avg = request_time
-                time_list = [request_time]
-                time_med = self.get_median(time_list)
-                time_perc = (time_sum / total_request_time) * 100
-                report[request_url] = {
-                    "count": count,
-                    "count_perc": count_perc,
-                    "time_sum": time_sum,
-                    "time_max": time_max,
-                    "time_list": time_list,
-                    "time_med": time_med,
-                    "time_avg": time_avg,
-                    "time_perc": time_perc,
-                }
+            if report.get(url):
+                self.refresh_report_record(report, log, total_count, total_time)
             else:
-                report[request_url]["count"] += 1
-                report[request_url]["count_perc"] = (
-                    report[request_url]["count"] / total_request_count * 100
-                )
-                report[request_url]["time_sum"] += request_time
-                if request_time > report[request_url]["time_max"]:
-                    report[request_url]["time_max"] = request_time
-                report[request_url]["time_list"].append(request_time)
-                report[request_url]["time_med"] = self.get_median(
-                    report[request_url]["time_list"]
-                )
-                report[request_url]["time_avg"] = (
-                    report[request_url]["time_sum"] / report[request_url]["count"]
-                )
-                report[request_url]["time_perc"] = (
-                    report[request_url]["time_sum"] / total_request_time * 100
-                )
-        return report
+                self.create_report_record(report, log, total_count, total_time)
+        sorted_report = dict(
+            sorted(report.items(), key=lambda item: item[1]["time_sum"], reverse=True)
+        )
+        result = [{"url": url, **data} for url, data in sorted_report.items()]
+        return result

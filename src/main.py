@@ -1,5 +1,6 @@
 import json
 import sys
+import time
 from typing import Dict, List
 
 import structlog
@@ -30,6 +31,8 @@ def parse_args(args: List) -> Dict:
 
 
 def main(args):
+    start_time = time.time()
+
     valid_args = parse_args(args)
     settings = Settings(config_file_path=valid_args.get("--config", None))
     nginx_analyzer = NginxLogAnalyzer(settings)
@@ -39,7 +42,11 @@ def main(args):
     logs = nginx_analyzer.get_nginx_logs(last_log)
     report = reporter.make_report_data(logs)
 
-    with open("test_report.txt", "w", encoding="utf-8") as file:
+    end_time = time.time()
+
+    print(f"Time: {end_time - start_time}")
+
+    with open("test_report.json", "w", encoding="utf-8") as file:
         json.dump(report, file, ensure_ascii=False, indent=4)
 
 
