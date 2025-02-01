@@ -1,6 +1,7 @@
 import os.path
 import sys
 import traceback
+from pathlib import Path
 from types import TracebackType
 from typing import Dict, Optional, Type
 
@@ -12,7 +13,7 @@ logger = structlog.getLogger(__name__)
 class LoggerConfig:
     """Config for Logger"""
 
-    def __init__(self) -> None:
+    def __init__(self, log_file_path: Optional[str] = None) -> None:
         structlog.configure(
             processors=[
                 structlog.processors.TimeStamper(fmt="iso"),
@@ -20,6 +21,12 @@ class LoggerConfig:
                 structlog.processors.JSONRenderer(ensure_ascii=False),
             ]
         )
+        if log_file_path:
+            structlog.configure(
+                logger_factory=structlog.WriteLoggerFactory(
+                    file=Path(log_file_path).open("a", encoding="utf-8"),
+                ),
+            )
         sys.excepthook = self._exception_logging
 
     def _exception_logging(
@@ -47,12 +54,12 @@ class Settings:
         "REPORT_SIZE": 1000,
         "REPORT_DIR": "./reports",
         "LOG_DIR": "./log",
+        "ANALYZER_LOG_FILE_PATH": None,
     }
 
     def __init__(self, config_file_path: Optional[str] = None) -> None:
         self.config_file_path = os.path.abspath(self._DEFAULT_CONFIG_FILE_PATH)
         self.config = self._DEFAULT_CONFIG
-        self._logger_config = LoggerConfig()
 
         if config_file_path:
             self.config_file_path = os.path.abspath(config_file_path)
@@ -61,6 +68,10 @@ class Settings:
             self._parse_config_file()
         else:
             logger.error(f"Config file was not found at {self.config_file_path}.")
+
+        self._logger_config = LoggerConfig(
+            self.config.get("ANALYZER_LOG_FILE_PATH", None)
+        )
 
     def _config_file_exists(self) -> bool:
         """Check the existence of the file at self.config_file_path"""
