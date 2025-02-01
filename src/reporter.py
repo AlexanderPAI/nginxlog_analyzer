@@ -4,6 +4,9 @@ from typing import Any, Dict, Generator, List
 
 import structlog
 
+from src.analyzer import NginxLogFile
+from src.config import Settings
+
 logger = structlog.getLogger(__name__)
 
 
@@ -11,6 +14,14 @@ class Reporter:
     """Service for making report_data"""
 
     _REPORT_TEMPLATE_PATH = "./report_template/report.html"
+
+    def __init__(self, settings: Settings, last_log_file: NginxLogFile) -> None:
+        self._report_dir = settings.config["REPORT_DIR"]
+        self._report_size = settings.config["REPORT_SIZE"]
+        self.last_log_file = last_log_file
+        self.report_file = (
+            f"{self._report_dir}/report-{last_log_file.date.strftime("%Y.%m.%d")}.html"
+        )
 
     @staticmethod
     def get_median(number_list) -> float:
@@ -80,19 +91,12 @@ class Reporter:
         result = [{"url": url, **data} for url, data in sorted_report.items()]
         return result
 
-    def render_report(
-        self, report_data: List[Dict[str, Any]], report_size: int, report_dir: str
-    ) -> None:
+    def render_report(self, report_data: List[Dict[str, Any]]) -> None:
+        """Render report_data to html-file"""
         with open(self._REPORT_TEMPLATE_PATH, "r") as file:
             template_data = file.read()
-
-        print(report_dir)
-
         template = Template(template_data)
-
-        table_json = json.dumps(report_data[: int(report_size)])
+        table_json = json.dumps(report_data[: int(self._report_size)])
         html_report = template.safe_substitute(table_json=table_json)
-        report_file = f"{report_dir}/test_report.html"
-        print(report_file)
-        with open(report_file, "w") as file:
+        with open(self.report_file, "w") as file:
             file.write(html_report)

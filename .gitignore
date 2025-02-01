@@ -170,5 +170,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-nginx-access-ui.log-*
+log/nginx-access-ui.log-*
 /test_report.json
+reports/report-*

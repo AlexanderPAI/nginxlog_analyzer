@@ -34,17 +34,15 @@ def main(args):
 
     valid_args = parse_args(args)
     settings = Settings(config_file_path=valid_args.get("--config", None))
-    nginx_analyzer = NginxLogAnalyzer(settings)
-    reporter = Reporter()
 
-    last_log = nginx_analyzer.find_last_nginx_log_file(settings.config["LOG_DIR"])
-    logs = nginx_analyzer.get_nginx_logs(last_log)
+    nginx_analyzer = NginxLogAnalyzer(settings)
+    last_log_file = nginx_analyzer.find_last_nginx_log_file()
+    logs = nginx_analyzer.get_nginx_logs(last_log_file)
+
+    reporter = Reporter(settings, last_log_file=last_log_file)
+
     report_data = reporter.make_report_data(logs)
-    reporter.render_report(
-        report_data=report_data,
-        report_size=settings.config["REPORT_SIZE"],
-        report_dir=settings.config["REPORT_DIR"],
-    )
+    reporter.render_report(report_data=report_data)
 
     end_time = time.time()
 

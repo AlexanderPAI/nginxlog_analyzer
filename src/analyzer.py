@@ -16,7 +16,7 @@ logger = structlog.getLogger(__name__)
 @dataclass
 class NginxLogFile:
     path: str
-    date: Optional[date] = None
+    date: date
     extension: Optional[str] = None
 
 
@@ -26,7 +26,7 @@ class NginxLogAnalyzer:
     def __init__(self, settings: Settings):
         self._log_dir = os.path.abspath(settings.config["LOG_DIR"])
 
-    def find_last_nginx_log_file(self, log_dir: Path) -> Optional[NginxLogFile]:
+    def find_last_nginx_log_file(self) -> Optional[NginxLogFile]:
 
         nginx_log_title_regex = (
             r"^nginx-access-ui\.log-(?P<date>\d{8})(?P<extension>\.[a-zA-Z0-9]+)?$"
@@ -35,7 +35,7 @@ class NginxLogAnalyzer:
         last_date: Optional[date] = None
         last_log = None
 
-        for file in Path(log_dir).iterdir():
+        for file in Path(self._log_dir).iterdir():
             name = re.match(nginx_log_title_regex, file.name)
             if name:
                 file_date = name.group("date")
