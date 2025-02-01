@@ -1,6 +1,6 @@
 import logging
 
-from config import Settings
+from src.config import Settings
 
 logger = logging.getLogger(__name__)
 
