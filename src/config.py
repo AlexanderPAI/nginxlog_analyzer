@@ -1,7 +1,12 @@
 import os.path
-from typing import Dict, Optional
+import sys
+import traceback
+from types import TracebackType
+from typing import Dict, Optional, Type
 
 import structlog
+
+logger = structlog.getLogger(__name__)
 
 
 class LoggerConfig:
@@ -15,15 +20,29 @@ class LoggerConfig:
                 structlog.processors.JSONRenderer(ensure_ascii=False),
             ]
         )
+        sys.excepthook = self._exception_logging
 
-
-logger = structlog.getLogger(__name__)
+    def _exception_logging(
+        self,
+        exc_type: Type[BaseException],
+        exc_info: BaseException,
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        """
+        Handler for catching all exception to structlog.
+        For sys.excepthook.
+        """
+        logger.error(
+            exception_class=str(exc_type),
+            event=exc_info,
+            traceback=traceback.extract_tb(exc_tb),
+        )
 
 
 class Settings:
     """Config for Analyzer"""
 
-    _DEFAULT_CONFIG_FILE_PATH: str = ".config/analyzer.cfg"
+    _DEFAULT_CONFIG_FILE_PATH: str = "./config/analyzer.cfg"
     _DEFAULT_CONFIG: Dict = {
         "REPORT_SIZE": 1000,
         "REPORT_DIR": "./reports",
