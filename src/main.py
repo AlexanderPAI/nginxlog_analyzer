@@ -1,10 +1,11 @@
-import logging
 import sys
 from typing import Dict, List
 
+import structlog
+
 from src.config import Settings
 
-logger = logging.getLogger(__name__)
+logger = structlog.getLogger(__name__)
 
 
 def parse_args(args: List) -> Dict:

@@ -1,20 +1,29 @@
-import logging
 import os.path
 from typing import Dict, Optional
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+import structlog
 
 
-logger = logging.getLogger(__name__)
+class LoggerConfig:
+    """Config for Logger"""
+
+    def __init__(self) -> None:
+        structlog.configure(
+            processors=[
+                structlog.processors.TimeStamper(fmt="iso"),
+                structlog.processors.add_log_level,
+                structlog.processors.JSONRenderer(ensure_ascii=False),
+            ]
+        )
+
+
+logger = structlog.getLogger(__name__)
 
 
 class Settings:
     """Config for Analyzer"""
 
-    _DEFAULT_CONFIG_FILE_PATH: str = "./settings.cfg"
+    _DEFAULT_CONFIG_FILE_PATH: str = ".config/analyzer.cfg"
     _DEFAULT_CONFIG: Dict = {
         "REPORT_SIZE": 1000,
         "REPORT_DIR": "./reports",
@@ -24,6 +33,7 @@ class Settings:
     def __init__(self, config_file_path: Optional[str] = None) -> None:
         self.config_file_path = os.path.abspath(self._DEFAULT_CONFIG_FILE_PATH)
         self.config = self._DEFAULT_CONFIG
+        self._logger_config = LoggerConfig()
 
         if config_file_path:
             self.config_file_path = os.path.abspath(config_file_path)
