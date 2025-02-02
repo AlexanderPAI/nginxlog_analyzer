@@ -21,13 +21,15 @@ class LoggerConfig:
                 structlog.processors.JSONRenderer(ensure_ascii=False),
             ]
         )
-        if log_file_path:
-            structlog.configure(
-                logger_factory=structlog.WriteLoggerFactory(
-                    file=Path(log_file_path).open("a", encoding="utf-8"),
-                ),
-            )
         sys.excepthook = self._exception_logging
+
+    @staticmethod
+    def write_logs_to_file(file_path):
+        structlog.configure(
+            logger_factory=structlog.WriteLoggerFactory(
+                file=Path(file_path).open("a", encoding="utf-8"),
+            ),
+        )
 
     def _exception_logging(
         self,
@@ -60,7 +62,7 @@ class Settings:
     def __init__(self, config_file_path: Optional[str] = None) -> None:
         self.config_file_path: str = os.path.abspath(self._DEFAULT_CONFIG_FILE_PATH)
         self.config: Dict = self._DEFAULT_CONFIG
-        self._logger_config: LoggerConfig | None = None
+        self._logger_config: LoggerConfig = LoggerConfig()
 
         if config_file_path:
             self.config_file_path = os.path.abspath(config_file_path)
@@ -72,11 +74,16 @@ class Settings:
         if self._config_file_exists():
             self._parse_config_file()
         else:
-            logger.error(f"Config file was not found at {self.config_file_path}.")
+            raise FileNotFoundError(
+                f"Config file was not found at {self.config_file_path}."
+            )
 
-        self._logger_config = LoggerConfig(
-            self.config.get("ANALYZER_LOG_FILE_PATH", None)
-        )
+        if self.config.get("ANALYZER_LOG_FILE_PATH"):
+            self._logger_config.write_logs_to_file(
+                self.config.get("ANALYZER_LOG_FILE_PATH")
+            )
+
+        logger.info(f"Settings: {self.config}")
 
     def _config_file_exists(self) -> bool:
         """Check the existence of the file at self.config_file_path"""
