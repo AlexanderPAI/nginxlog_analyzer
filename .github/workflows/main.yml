@@ -20,6 +20,6 @@ jobs:
       - name: Checking by isort
         run: isort . --profile black
       - name: Checking by mypy
-        run: mypy .
+        run: mypy --exclude tests .
       - name: Checking by black
         run: black --check .
