@@ -13,7 +13,7 @@ logger = structlog.getLogger(__name__)
 class LoggerConfig:
     """Config for Logger"""
 
-    def __init__(self, log_file_path: Optional[str] = None) -> None:
+    def __init__(self) -> None:
         structlog.configure(
             processors=[
                 structlog.processors.TimeStamper(fmt="iso"),
