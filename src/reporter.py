@@ -51,8 +51,6 @@ class Reporter:
             "time_list": [time],
             "time_med": time,
             "time_avg": time,
-            "count_perc": (1 / total_count) * 100,
-            "time_perc": (time / total_time) * 100,
         }
 
     def _refresh_report_record(self, report, log, total_count, total_time):
@@ -66,8 +64,6 @@ class Reporter:
         report[url]["time_list"].append(time)
         report[url]["time_med"] = self._get_median(report[url]["time_list"])
         report[url]["time_avg"] = report[url]["time_sum"] / report[url]["count"]
-        report[url]["count_perc"] = (report[url]["count"] / total_count) * 100
-        report[url]["time_perc"] = (report[url]["time_sum"] / total_time) * 100
 
     def make_report_data(
         self, nginx_logs: Generator[List[str], None, None]
@@ -98,6 +94,8 @@ class Reporter:
         for url, data in sorted_report.items():
             element = {"url": url, **data}
             element.pop("time_list")
+            element["count_perc"] = (element["count"] / total_count) * 100
+            element["time_perc"] = (element["time_sum"] / total_time) * 100
             result.append(element)
         return result
 
