@@ -1,0 +1,6 @@
+.github
+.gitignore
+.dockerignore
+reports/report-*
+log/nginx-access-ui.log-*
+Dockerfile

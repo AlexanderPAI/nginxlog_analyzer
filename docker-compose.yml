@@ -1,0 +1,16 @@
+services:
+  log_analyzer:
+    environment:
+      - PATH=/root/.pyenv/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    # Задание со звездочкой *
+    # Я не знаю как прокинуть тома без .env так, чтобы они подтягивались по схеме:
+    # make up --config -> docker-compose up [как переменные окружения]
+    # Использование глобальных переменных в отношении config по ТЗ запрещено
+    volumes:
+      - ${LOG_DIR:-./log}:/app/log
+      - ${REPORT_DIR:-./reports}:/app/reports
