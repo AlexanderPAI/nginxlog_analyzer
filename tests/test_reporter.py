@@ -32,8 +32,8 @@ TEST_REPORT_DATA = [
         "time_max": 0.704,
         "time_med": 0.704,
         "time_avg": 0.704,
-        "count_perc": 33.33333333333333,
-        "time_perc": 57.37571312143439,
+        "count_perc": 14.285714285714285,
+        "time_perc": 31.912964641885765,
     },
     {
         "url": "/api/v2/group/1769230/banners",
@@ -42,8 +42,8 @@ TEST_REPORT_DATA = [
         "time_max": 0.628,
         "time_med": 0.628,
         "time_avg": 0.628,
-        "count_perc": 20.0,
-        "time_perc": 31.384307846076965,
+        "count_perc": 14.285714285714285,
+        "time_perc": 28.467815049864008,
     },
     {
         "url": "/api/v2/banner/25019354",
@@ -52,8 +52,8 @@ TEST_REPORT_DATA = [
         "time_max": 0.39,
         "time_med": 0.39,
         "time_avg": 0.39,
-        "count_perc": 100.0,
-        "time_perc": 100.0,
+        "count_perc": 14.285714285714285,
+        "time_perc": 17.679057116953764,
     },
     {
         "url": "/api/v2/internal/banner/24294027/info",
@@ -62,8 +62,8 @@ TEST_REPORT_DATA = [
         "time_max": 0.146,
         "time_med": 0.146,
         "time_avg": 0.146,
-        "count_perc": 25.0,
-        "time_perc": 10.633648943918427,
+        "count_perc": 14.285714285714285,
+        "time_perc": 6.618313689936536,
     },
     {
         "url": "/api/v2/banner/1717161",
@@ -82,8 +82,8 @@ TEST_REPORT_DATA = [
         "time_max": 0.133,
         "time_med": 0.133,
         "time_avg": 0.133,
-        "count_perc": 50.0,
-        "time_perc": 25.430210325047803,
+        "count_perc": 14.285714285714285,
+        "time_perc": 6.029011786038079,
     },
     {
         "url": "/api/v2/group/7786679/statistic/sites/?date_type=day&date_from=2017-06-28&date_to=2017-06-28",
@@ -92,8 +92,8 @@ TEST_REPORT_DATA = [
         "time_max": 0.067,
         "time_med": 0.067,
         "time_avg": 0.067,
-        "count_perc": 16.666666666666664,
-        "time_perc": 3.239845261121857,
+        "count_perc": 14.285714285714285,
+        "time_perc": 3.0371713508612874,
     },
 ]
 
