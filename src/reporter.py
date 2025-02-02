@@ -1,4 +1,5 @@
 import json
+import os.path
 from string import Template
 from typing import Any, Dict, Generator, List
 
@@ -24,7 +25,7 @@ class Reporter:
         )
 
     @staticmethod
-    def get_median(number_list) -> float:
+    def _get_median(number_list) -> float:
         """Func for getting median from list of numbers"""
         number_list.sort()
         n = len(number_list)
@@ -35,7 +36,7 @@ class Reporter:
             return number_list[mid]
 
     @staticmethod
-    def create_report_record(report, log, total_count, total_time):
+    def _create_report_record(report, log, total_count, total_time):
         """Create url-record in report"""
         url = log[7]
         time = float(log[-1])
@@ -51,7 +52,7 @@ class Reporter:
             "time_perc": (time / total_time) * 100,
         }
 
-    def refresh_report_record(self, report, log, total_count, total_time):
+    def _refresh_report_record(self, report, log, total_count, total_time):
         """Refresh url-record in report"""
         url = log[7]
         time = float(log[-1])
@@ -60,10 +61,14 @@ class Reporter:
         report[url]["time_sum"] += time
         report[url]["time_max"] = max(report[url]["time_max"], time)
         report[url]["time_list"].append(time)
-        report[url]["time_med"] = self.get_median(report[url]["time_list"])
+        report[url]["time_med"] = self._get_median(report[url]["time_list"])
         report[url]["time_avg"] = report[url]["time_sum"] / report[url]["count"]
         report[url]["count_perc"] = (report[url]["count"] / total_count) * 100
         report[url]["time_perc"] = (report[url]["time_sum"] / total_time) * 100
+
+    def check_report_exist(self):
+        """Check report for log"""
+        return os.path.isfile(self.report_file)
 
     def make_report_data(
         self, nginx_logs: Generator[List[str], None, None]
@@ -82,9 +87,9 @@ class Reporter:
             total_time += time
 
             if report.get(url):
-                self.refresh_report_record(report, log, total_count, total_time)
+                self._refresh_report_record(report, log, total_count, total_time)
             else:
-                self.create_report_record(report, log, total_count, total_time)
+                self._create_report_record(report, log, total_count, total_time)
         sorted_report = dict(
             sorted(report.items(), key=lambda item: item[1]["time_sum"], reverse=True)
         )

@@ -45,6 +45,10 @@ def main(args):
     reporter = Reporter(settings, last_log_file=last_log_file)
     logger.info(f"Report File: {reporter.report_file}")
 
+    if reporter.check_report_exist():
+        logger.info(f"Report for {last_log_file} is exist already")
+        sys.exit()
+
     start_time = time.time()
     logger.info(f"Log Analyzer starts: {start_time}")
 
