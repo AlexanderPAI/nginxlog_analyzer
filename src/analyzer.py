@@ -29,7 +29,7 @@ class NginxLogAnalyzer:
     def find_last_nginx_log_file(self) -> Optional[NginxLogFile]:
 
         nginx_log_title_regex = (
-            r"^nginx-access-ui\.log-(?P<date>\d{8})(?P<extension>\.[a-zA-Z0-9]+)?$"
+            r"^nginx-access-ui\.log-(?P<date>\d{8})(?P<extension>(\.gz)?)$"
         )
 
         last_date: Optional[date] = None
