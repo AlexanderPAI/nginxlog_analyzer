@@ -1,27 +1,10 @@
 import os
-from pathlib import Path
 from typing import Dict
 
 import pytest
-import structlog
 
 from src.config import Settings
-
-logger = structlog.getLogger("test")
-
-
-def create_temp_config_file(temp_config_path: str, config: Dict) -> None:
-    """Create temp config file"""
-    temp_config = Path(temp_config_path)
-    with open(temp_config, "w", encoding="utf-8") as file:
-        for key, value in config.items():
-            file.write(f"{key}={value}\n")
-
-
-def delete_temp_config_file(temp_config_path: str) -> None:
-    """Delete temp config file"""
-    temp_config = Path(temp_config_path)
-    temp_config.unlink()
+from tests.utils import create_temp_file, delete_temp_file
 
 
 class TestSettings:
@@ -61,9 +44,9 @@ class TestSettings:
     def test_init_settings_with_config_arg(self):
         """Check init Settings with arg --config"""
         config_args = {"--config": self.NOT_DEFAULT_CONFIG_FILE_PATH}
-        create_temp_config_file(config_args["--config"], self.NOT_DEFAULT_CONFIG)
+        create_temp_file(config_args["--config"], self.NOT_DEFAULT_CONFIG)
         settings = Settings(config_args["--config"])
-        delete_temp_config_file(config_args["--config"])
+        delete_temp_file(config_args["--config"])
         assert settings.config_file_path == os.path.abspath(
             self.NOT_DEFAULT_CONFIG_FILE_PATH
         ), "Config path does not match expected path"
