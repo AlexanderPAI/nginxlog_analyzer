@@ -8,5 +8,5 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./log:/app/log
-      - ./reports:/app/reports
+      - ${LOG_DIR:-./log}:/app/log
+      - ${REPORT_DIR:-./reports}:/app/reports
