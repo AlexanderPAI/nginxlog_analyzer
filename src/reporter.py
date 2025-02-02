@@ -88,7 +88,12 @@ class Reporter:
         sorted_report = dict(
             sorted(report.items(), key=lambda item: item[1]["time_sum"], reverse=True)
         )
-        result = [{"url": url, **data} for url, data in sorted_report.items()]
+        result = []
+        # O(n log n + n * m)
+        for url, data in sorted_report.items():
+            element = {"url": url, **data}
+            element.pop("time_list")
+            result.append(element)
         return result
 
     def render_report(self, report_data: List[Dict[str, Any]]) -> None:
