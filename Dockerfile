@@ -6,10 +6,11 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /src
+WORKDIR /app
 
-COPY ./src .
+COPY . .
 
-RUN pip install poetry==2.0.1 && curl -s https://pyenv.run | bash
+RUN pip install poetry==2.0.1
+RUN poetry config virtualenvs.create false && poetry install --no-root
 
-CMD ["python3", "main.py"]
+CMD ["python3", "-m", "src.main"]
