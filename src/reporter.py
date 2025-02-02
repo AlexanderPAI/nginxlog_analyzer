@@ -12,7 +12,10 @@ logger = structlog.getLogger(__name__)
 
 
 class Reporter:
-    """Service for making report_data"""
+    """
+    Service for making report_data.
+    It prepares report_data from last_nginx_file and renders html-report by html-template.
+    """
 
     _REPORT_TEMPLATE_PATH = "./report_template/report.html"
 
@@ -66,10 +69,6 @@ class Reporter:
         report[url]["count_perc"] = (report[url]["count"] / total_count) * 100
         report[url]["time_perc"] = (report[url]["time_sum"] / total_time) * 100
 
-    def check_report_exist(self):
-        """Check report for log"""
-        return os.path.isfile(self.report_file)
-
     def make_report_data(
         self, nginx_logs: Generator[List[str], None, None]
     ) -> List[Dict[str, str]]:
@@ -93,6 +92,7 @@ class Reporter:
         sorted_report = dict(
             sorted(report.items(), key=lambda item: item[1]["time_sum"], reverse=True)
         )
+
         result = []
         # O(n log n + n * m)
         for url, data in sorted_report.items():
@@ -110,3 +110,7 @@ class Reporter:
         html_report = template.safe_substitute(table_json=table_json)
         with open(self.report_file, "w") as file:
             file.write(html_report)
+
+    def check_report_exist(self):
+        """Check report for log"""
+        return os.path.isfile(self.report_file)

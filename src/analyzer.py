@@ -21,7 +21,10 @@ class NginxLogFile:
 
 
 class NginxLogAnalyzer:
-    """Analyzer for nginx logs"""
+    """
+    Analyzer for nginx logs.
+    It searches last_nginx_file and prepares logs generator from last_nginx_file.
+    """
 
     def __init__(self, settings: Settings):
         self._log_dir = os.path.abspath(settings.config["LOG_DIR"])
@@ -52,8 +55,6 @@ class NginxLogAnalyzer:
 
         if last_log:
             return last_log
-
-        logger.error(f"The logs were not found at {self._log_dir}")
         return None
 
     @staticmethod
