@@ -12,7 +12,10 @@ logger = structlog.getLogger(__name__)
 
 
 class Reporter:
-    """Service for making report_data"""
+    """
+    Service for making report_data.
+    It prepares report_data from last_nginx_file and renders html-report by html-template.
+    """
 
     _REPORT_TEMPLATE_PATH = "./report_template/report.html"
 
@@ -94,6 +97,7 @@ class Reporter:
             sorted(report.items(), key=lambda item: item[1]["time_sum"], reverse=True)
         )
         result = []
+
         # O(n log n + n * m)
         for url, data in sorted_report.items():
             element = {"url": url, **data}
