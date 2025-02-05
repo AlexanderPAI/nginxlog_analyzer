@@ -42,7 +42,10 @@ def main(args: List):
     logger.info(f"Last Nginx Log File: {last_log_file}")
 
     # Prepare logs generator
-    nginx_logs = nginx_analyzer.get_nginx_logs(last_log_file)
+    try:
+        nginx_logs = nginx_analyzer.get_nginx_logs(last_log_file)
+    except ValueError as e:
+        logger.error(e)
 
     # Init reporter
     reporter = Reporter(settings, last_log_file=last_log_file)

@@ -63,7 +63,7 @@ class NginxLogAnalyzer:
     ) -> Generator[List[str], None, None]:
         """Generator for parsing nginx log line by line"""
         if not nginx_log_file:
-            logger.error("LastLogFile wasn't passed to get_nginx_logs_generator")
+            raise ValueError("LastLogFile wasn't passed to get_nginx_logs_generator")
         open_func = gzip.open if nginx_log_file.extension == ".gz" else open
         try:
             with open_func(nginx_log_file.path, "rt", encoding="utf-8") as file:
