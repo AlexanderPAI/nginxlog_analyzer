@@ -30,7 +30,12 @@ def main(args: List):
     nginx_analyzer = NginxLogAnalyzer(settings)
 
     # Get and check last log file
-    last_log_file = nginx_analyzer.find_last_nginx_log_file()
+    try:
+        last_log_file = nginx_analyzer.find_last_nginx_log_file()
+    except TypeError as e:
+        logger.error(e)
+        sys.exit()
+
     if not last_log_file:
         logger.error(f"The logs were not found at {last_log_file}")
         sys.exit()
